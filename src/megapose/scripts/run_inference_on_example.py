@@ -1,7 +1,10 @@
+# autopep8: off
 # Standard Library
 import argparse
 import json
 import os
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))))
 from pathlib import Path
 from typing import List, Tuple, Union
 
@@ -12,6 +15,7 @@ from bokeh.plotting import gridplot
 from PIL import Image
 
 # MegaPose
+from megapose.config import LOCAL_DATA_DIR
 from megapose.datasets.object_dataset import RigidObject, RigidObjectDataset
 from megapose.datasets.scene_dataset import CameraData, ObjectData
 from megapose.inference.types import (
@@ -36,7 +40,7 @@ def load_observation(
     example_dir: Path,
     load_depth: bool = False,
 ) -> Tuple[np.ndarray, Union[None, np.ndarray], CameraData]:
-    camera_data = CameraData.from_json((example_dir / "camera_data.json").read_text())
+    camera_data = CameraData.from_json((example_dir / "camera_data_undistorted.json").read_text())
 
     rgb = np.array(Image.open(example_dir / "image_rgb.png"), dtype=np.uint8)
     assert rgb.shape[:2] == camera_data.resolution
@@ -208,16 +212,16 @@ def make_output_visualization(
 if __name__ == "__main__":
     set_logging_level("info")
     parser = argparse.ArgumentParser()
-    parser.add_argument("example_name")
+    parser.add_argument("path")
     parser.add_argument("--model", type=str, default="megapose-1.0-RGB-multi-hypothesis")
     parser.add_argument("--vis-detections", action="store_true")
     parser.add_argument("--run-inference", action="store_true")
     parser.add_argument("--vis-outputs", action="store_true")
     args = parser.parse_args()
+    from pathlib import Path
 
-    data_dir = os.getenv("MEGAPOSE_DATA_DIR")
-    assert data_dir
-    example_dir = Path(data_dir) / "examples" / args.example_name
+    # example_dir = LOCAL_DATA_DIR / "examples" / args.path
+    example_dir = Path(args.path) 
 
     if args.vis_detections:
         make_detections_visualization(example_dir)
