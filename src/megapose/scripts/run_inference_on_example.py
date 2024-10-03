@@ -220,8 +220,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     from pathlib import Path
 
-    # example_dir = LOCAL_DATA_DIR / "examples" / args.path
-    example_dir = Path(args.path) 
+    data_dir = os.getenv("MEGAPOSE_DATA_DIR")
+    assert data_dir
+    example_dir = Path(data_dir) / "examples" / args.example_name
 
     if args.vis_detections:
         make_detections_visualization(example_dir)
